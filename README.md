@@ -18,52 +18,10 @@ A multilevel parking lot management system built in Java, designed with **SOLID 
 
 ## UML Diagram
 
-<!-- Add your UML class diagram image here -->
-<!-- Example: ![UML Diagram](./uml-diagram.png) -->
-
-> **TODO**: Add UML class diagram here.
+![UML DIAGRAM](UML.png);
 
 ---
 
-## Architecture
-
-```
-┌────────────────────────────────────────────────────────┐
-│                     Main (Driver)                      │
-└──────────┬─────────────────────────────────────────────┘
-           │ creates & wires
-           ▼
-┌────────────────────┐    ┌──────────────────────────────┐
-│   ParkingService   │───▶│   SlotAssignmentStrategy     │
-│  park() / exit()   │    │  «interface»                 │
-│  status()          │    └──────────┬───────────────────┘
-└──┬────┬────────────┘               │
-   │    │         ┌──────────────────┴──────────────────┐
-   │    │         │                                     │
-   │    │         ▼                                     ▼
-   │    │  ┌─────────────────────────┐  ┌─────────────────────────────┐
-   │    │  │ NearestSlotAssignment   │  │ FirstAvailableSlotStrategy  │
-   │    │  │ Strategy                │  └─────────────────────────────┘
-   │    │  └─────────────────────────┘
-   │    │
-   │    ├──▶ ┌──────────────────┐
-   │    │    │ BillingStrategy  │ «interface»
-   │    │    └──────┬───────────┘
-   │    │           ▼
-   │    │    ┌──────────────────────┐
-   │    │    │ NormalBillingStrategy │
-   │    │    └──────────────────────┘
-   │    │
-   │    └──▶ ┌──────────────────────┐
-   │         │ StatusDisplayService │
-   │         └──────────────────────┘
-   ▼
-┌──────────────────┐
-│ PricingStrategy  │
-└──────────────────┘
-```
-
----
 
 ## SOLID Principles Applied
 
@@ -105,33 +63,8 @@ A multilevel parking lot management system built in Java, designed with **SOLID 
 |---|---|---|
 | **Strategy** | `SlotAssignmentStrategy` | Swap slot-finding algorithms without modifying `ParkingService` |
 | **Strategy** | `BillingStrategy` | Swap billing logic (normal, surge, subscription) without modifying `ParkingService` |
-| **Builder** | `PricingStrategy.addRate()` | Fluent configuration of per-slot-type pricing |
-
 ---
 
-## Slot Type Mapping & Upgrade
-
-| Vehicle Type | Required Slot | Upgrade Path |
-|---|---|---|
-| TWO_WHEELER | SMALL | SMALL → MEDIUM → LARGE |
-| CAR | MEDIUM | MEDIUM → LARGE |
-| BUS | LARGE | — (no upgrade possible) |
-
-If the required slot type is full, the system automatically upgrades to the next bigger slot.
-
----
-
-## Pricing
-
-| Slot Type | Hourly Rate |
-|---|---|
-| SMALL | ₹50 |
-| MEDIUM | ₹100 |
-| LARGE | ₹200 |
-
-**Billing formula**: `ceil(duration_in_hours) × hourly_rate`
-
----
 
 ## How to Run
 
@@ -142,79 +75,3 @@ javac *.java
 # Run the demo
 java Main
 ```
-
-### Sample Output
-
-```
-╔══════════════════════════════════════════════════╗
-║   DEMO 1: Nearest Slot Assignment Strategy      ║
-╚══════════════════════════════════════════════════╝
-
-========== PARKING LOT STATUS ==========
---- Floor 1 ---
-  SMALL  : 2/2 available
-  MEDIUM : 2/2 available
-  LARGE  : 1/1 available
---- Floor 2 ---
-  SMALL  : 1/1 available
-  MEDIUM : 1/1 available
-  LARGE  : 1/1 available
-========================================
-
-[ACTION] Parking car KA-01-AB-1234 via Gate 1...
-  → Ticket#1 | Slot#3 | Type=MEDIUM
-
-[ACTION] Parking bike KA-04-GH-3456 via Gate 1 (expect upgrade)...
-  Upgraded KA-04-GH-3456 from SMALL to MEDIUM (requested slot type was full)
-  → Ticket#4 | Slot#4 | Type=MEDIUM
-
-[ACTION] Car KA-01-AB-1234 exiting...
-  → Bill: ₹300.0 (MEDIUM slot, 3 hours)
-
-╔══════════════════════════════════════════════════╗
-║   DEMO 2: First Available Slot Strategy         ║
-╚══════════════════════════════════════════════════╝
-
-[ACTION] Parking car KA-06-KL-1111 via Gate 1 (FirstAvailable)...
-  → Ticket#6 | Slot#3 | Type=MEDIUM
-
-════════════════════════════════════════════════════
-  Demo complete. Strategy pattern allows swapping
-  slot algorithms with ZERO changes to ParkingService.
-════════════════════════════════════════════════════
-```
-
----
-
-## Extending the System
-
-### Adding a New Slot Assignment Algorithm
-
-1. Create a new class implementing `SlotAssignmentStrategy`:
-
-```java
-public class RandomSlotStrategy implements SlotAssignmentStrategy {
-    @Override
-    public ParkingSlot findSlot(SlotType slotType, int entryGateId, int level) {
-        // Your custom logic here
-    }
-}
-```
-
-2. Inject it into `ParkingService` — **no other code changes needed**.
-
-### Adding a New Billing Model
-
-1. Create a new class implementing `BillingStrategy`:
-
-```java
-public class SurgeBillingStrategy implements BillingStrategy {
-    @Override
-    public double bill(Ticket ticket, PricingStrategy pricingStrategy) {
-        // Your custom billing logic here
-    }
-}
-```
-
-2. Inject it into `ParkingService` — **no other code changes needed**.
-# ParkingLot

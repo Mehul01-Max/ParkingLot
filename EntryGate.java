@@ -27,14 +27,12 @@ public class EntryGate {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null || getClass() != obj.getClass()) return false;
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
         EntryGate other = (EntryGate) obj;
         return this.entryGateId == other.entryGateId;
     }
 
-    @Override
-    public String toString() {
-        return "EntryGate#" + entryGateId + " (Floor " + floorNumber + ")";
-    }
 }
